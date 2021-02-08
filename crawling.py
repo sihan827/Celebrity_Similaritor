@@ -68,15 +68,15 @@ if __name__ == '__main__':
     # for kw in kws:
     #     print(kw)
 
-    # search_img('정해인', 'male', LIMIT)
+    # search_img('이영호', 'male', LIMIT)
     # Female Celebrity Crawling
-    filepath = './female_celebrities.txt'
+    filepath = '../female_celebrities.txt'
     kws = get_keyword_list(filepath)
     for kw in kws:
         search_img(kw, 'female', LIMIT)
 
     # Male Celebrity Crawling
-    filepath = './male_celebrities.txt'
+    filepath = '../male_celebrities.txt'
     kws = get_keyword_list(filepath)
     for kw in kws:
         search_img(kw, 'male', LIMIT)

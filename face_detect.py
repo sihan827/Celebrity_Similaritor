@@ -87,14 +87,14 @@ if __name__ == '__main__':
     # crop_images_and_save('./male/정해인')
 
     # Female Image Crop
-    path = './female'
+    path = 'female'
     dir_list = os.listdir(path)
     for i in dir_list:
         p = path + '/' + i
         crop_images_and_save(p)
 
     # Male Image Crop
-    path = './male'
+    path = 'male'
     dir_list = os.listdir(path)
     for i in dir_list:
         p = path + '/' + i
