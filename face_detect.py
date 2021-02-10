@@ -56,9 +56,8 @@ def get_face(image):
 def crop_images_and_save(dir_path):
     n = dir_path.split('/')
     keyword = n[-1]
-    gender = n[-2]
 
-    dir = './' + gender + '_crop' + '/' + keyword + '_crop'
+    dir = './celebrities_face/' + keyword
     if not os.path.exists(dir):
         os.makedirs(dir)
 
