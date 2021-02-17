@@ -73,8 +73,8 @@ def crop_images_and_save(dir_path):
 
 
 if __name__ == '__main__':
-    # img = korean_path_imread('./female/남보라/남보라_1.png')
-    # img = korean_path_imread('./song.jpg')
+    # img = imread('./female/남보라/남보라_1.png')
+    # img = imread('./song.jpg')
     #
     # detected_faces = get_face(img)
     #
