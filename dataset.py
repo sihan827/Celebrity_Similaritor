@@ -12,11 +12,11 @@ DEVICE = 'cuda' if USE_CUDA else 'cpu'
 
 
 def get_dataset_mean_std(data_path):
-    '''
+    """
     make a simple DataSet from data_path and calculate mean and std of RGB channels
     :param data_path: a data path which is a directory that separated by classes
     :return: mean and std of dataset
-    '''
+    """
     preprocess = transforms.Compose([
         transforms.Resize((299, 299)),
         transforms.ToTensor()
@@ -38,18 +38,18 @@ def get_dataset_mean_std(data_path):
     std /= len(loader.dataset)
 
     # mean=[0.5893, 0.4750, 0.4330], std=[0.2573, 0.2273, 0.2134] for celebrities_face
-    # mean=[0.5961, 0.4563, 0.3906], std=[0.2184, 0.1944, 0.1852] for celebrities_face
+    # mean=[0.5961, 0.4563, 0.3906], std=[0.2184, 0.1944, 0.1852] for utk_face
     return mean, std
 
 
 def get_dataset(data_path, mean, std):
-    '''
+    """
     make a dataset normalized by mean and std from data path
     :param data_path:a data path which is a directory that separated by classes
     :param mean: mean value to normalize
     :param std: std value to normalize
     :return: transformed DataSet
-    '''
+    """
     # can add more data augmentation
     preprocess = transforms.Compose([
         transforms.Resize((299, 299)),
@@ -62,10 +62,10 @@ def get_dataset(data_path, mean, std):
 
 
 def check_dataset(dataset):
-    '''
+    """
     show images of one batch in dataset
     :param dataset: DataSet that you want to check
-    '''
+    """
     loader = torch.utils.data.DataLoader(dataset, batch_size=16)
     dataiter = iter(loader)
     images, labels = dataiter.next()
@@ -79,7 +79,7 @@ def check_dataset(dataset):
 
 
 def train_test_set_split(dataset, dataset_name, test_size=0.1):
-    '''
+    """
     split DataSet to train and test by Subset
     if indices txt files exist, indices will be loaded based on txt files
     otherwise, split indices by train_test_split and save indices in txt files
@@ -88,7 +88,7 @@ def train_test_set_split(dataset, dataset_name, test_size=0.1):
     :param dataset_name: name of dataset
     :param test_size: test size rate you want to split from dataset, default 0.1
     :return: train set, test set, train set labels
-    '''
+    """
     train_indices_path = './' + dataset_name + '_train_indices(' + str(test_size) + ').txt'
     test_indices_path = './' + dataset_name + '_test_indices(' + str(test_size) + ').txt'
     try:
@@ -132,14 +132,14 @@ def train_test_set_split(dataset, dataset_name, test_size=0.1):
 
 
 def train_valid_sampler_split(train_set, train_labels, valid_size=0.1, stratify=True):
-    '''
+    """
     split train set to train sampler and valid sampler using SubsetRandomSampler
     :param train_set: base train set
     :param train_labels: base train label(can be used as stratify
     :param valid_size: valid size rate you want to split from train set, default 0.1
     :param stratify: stratify split option, default True
     :return: train sampler, valid sampler
-    '''
+    """
     indices = np.arange(len(train_set))
     if stratify:
         train_indices, valid_indices, _, _ = train_test_split(

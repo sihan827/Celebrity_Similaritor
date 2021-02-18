@@ -7,6 +7,13 @@ import os
 
 
 def get_keyword_list(path):
+    """
+    get keyword from file in path
+    I used male_celebrities.txt and female_celebrities.txt in my repo
+    you can make your own keyword file
+    :param path: path of keyword file
+    :return: keywords list
+    """
     keywords = []
     try:
         # Be careful about encoding
@@ -23,7 +30,12 @@ def get_keyword_list(path):
         return -1
 
 
-def search_img(keyword, gender, limit):
+def search_img(keyword, limit):
+    """
+    crawl keyword's image in keyword list by Google using selenium
+    :param keyword: keyword list to crawl
+    :param limit: loaded images limit in browser
+    """
     url = f'https://www.google.com/search?q={quote_plus(keyword)}' \
           f'&sxsrf=ALeKk02jZiNpixyPIOho-HXr4GMeXTQoyw:1612103615267' \
           f'&source=lnms&tbm=isch' \
@@ -43,7 +55,7 @@ def search_img(keyword, gender, limit):
     soup = Bs(html, 'html.parser')
     img = soup.select('.rg_i.Q4LuWd')
 
-    dir = './' + str(gender) + '/' + str(keyword)
+    dir = './celebrities/' + str(keyword)
     if not os.path.exists(dir):
         os.makedirs(dir)
 
@@ -62,6 +74,11 @@ def search_img(keyword, gender, limit):
 
 
 def make_utk_dir():
+    """
+    this function is for UTKFace data images (use cropped images)
+    https://susanqq.github.io/UTKFace/
+    separate UTKFace to ages class directory
+    """
     data_path = './UTKFace'
     target_path = './utk_face'
     if not os.path.exists(data_path):
@@ -81,24 +98,16 @@ def make_utk_dir():
 
 
 if __name__ == '__main__':
-    # filepath = './female_celebrities.txt'
-    # kws = get_keyword_list(filepath)
-    # for kw in kws:
-    #     print(kw)
-
-    # search_img('이영호', 'male', LIMIT)
-
-    # make_utk_dir()
     LIMIT = 150
 
     # Female Celebrity Crawling
     filepath = '../female_celebrities.txt'
     kws = get_keyword_list(filepath)
     for kw in kws:
-        search_img(kw, 'female', LIMIT)
+        search_img(kw, LIMIT)
 
     # Male Celebrity Crawling
     filepath = '../male_celebrities.txt'
     kws = get_keyword_list(filepath)
     for kw in kws:
-        search_img(kw, 'male', LIMIT)
+        search_img(kw, LIMIT)

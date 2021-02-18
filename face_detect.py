@@ -5,6 +5,13 @@ import os
 
 
 def imread(filename, flags=cv2.IMREAD_COLOR, dtype=np.uint8):
+    """
+    modified version of cv2.imread for Korean directory path
+    :param filename: image filename that you want to read
+    :param flags: flags for cv2.imread, default cv2.IMREAD_COLOR
+    :param dtype: dtype for cv2.imread, default np.uint8
+    :return: image
+    """
     try:
         n = np.fromfile(filename, dtype)
         img = cv2.imdecode(n, flags)
@@ -15,6 +22,12 @@ def imread(filename, flags=cv2.IMREAD_COLOR, dtype=np.uint8):
 
 
 def imwrite(filename, img, params=None):
+    """
+    modified version of cv2.imwrite for Korean directory path
+    :param filename: filename that you want to save
+    :param img: image you want to save
+    :param params: params for cv2.imwrite, default None
+    """
     try:
         ext = os.path.splitext(filename)[1]
         result, n = cv2.imencode(ext, img, params)
@@ -31,6 +44,11 @@ def imwrite(filename, img, params=None):
 
 
 def get_face(image):
+    """
+    crop face images from input image and return them using Haar cascade parameters
+    :param image: input image you want to crop
+    :return: list of cropped images
+    """
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     plt.imshow(gray, cmap='gray')
@@ -53,7 +71,12 @@ def get_face(image):
     return crops
 
 
-def crop_images_and_save(dir_path):
+def crop_celebrities_face_and_save(dir_path):
+    """
+    this function is for data 'celebrities_face'
+    crop faces from crawled data and save them to 'celebrities_face' directory
+    :param dir_path: directory path that contains none cropped images
+    """
     n = dir_path.split('/')
     keyword = n[-1]
 
@@ -67,38 +90,36 @@ def crop_images_and_save(dir_path):
         img = imread(file_path)
         detected_faces = get_face(img)
 
-        n = 0
+        i = 0
         for face in detected_faces:
-            imwrite(dir + '/' + file[:-4] + '_' + str(n) + '.jpg', face)
+            imwrite(dir + '/' + file[:-4] + '_' + str(i) + '.jpg', face)
+            i += 1
+
+
+def crop_image_and_save(img_path):
+    """
+    crop faces from image in img_path and save them in same path
+    :param img_path: image file path you want to crop
+    """
+    if not os.path.exists(img_path):
+        print('No such image path exists!')
+        return None
+    file_name = img_path.split('/')[-1]
+    index = img_path.find(file_name)
+    cropped_path = img_path[:index]
+    img = imread(img_path)
+    detected_face = get_face(img)
+
+    i = 0
+    for face in detected_face:
+        imwrite(cropped_path + file_name[:-4] + '_' + str(i) + '.jpg', face)
+        i += 1
 
 
 if __name__ == '__main__':
-    # img = imread('./female/남보라/남보라_1.png')
-    # img = imread('./song.jpg')
-    #
-    # detected_faces = get_face(img)
-    #
-    # plt.imshow(cv2.cvtColor(detected_faces[0], cv2.COLOR_BGR2RGB), cmap='gray')
-    # plt.show()
-    #
-    # cv2.imwrite('./song2.jpg', detected_faces[0])
-    
-    # crop_images_and_save('./male/정해인')
-
-    # Female Image Crop
-    path = 'female'
+    # Celebrities Image Crop
+    path = './celebrities'
     dir_list = os.listdir(path)
     for i in dir_list:
         p = path + '/' + i
-        crop_images_and_save(p)
-
-    # Male Image Crop
-    path = 'male'
-    dir_list = os.listdir(path)
-    for i in dir_list:
-        p = path + '/' + i
-        crop_images_and_save(p)
-
-
-
-
+        crop_celebrities_face_and_save(p)
