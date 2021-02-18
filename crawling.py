@@ -2,6 +2,7 @@ from urllib.request import urlretrieve
 from urllib.parse import quote_plus
 from bs4 import BeautifulSoup as Bs
 from selenium import webdriver
+import shutil
 import os
 
 
@@ -60,15 +61,36 @@ def search_img(keyword, gender, limit):
     browser.close()
 
 
-if __name__ == '__main__':
-    LIMIT = 150
+def make_utk_dir():
+    data_path = './UTKFace'
+    target_path = './utk_face'
+    if not os.path.exists(data_path):
+        print('No UTKFace directory!')
+        return
+    if not os.path.exists(target_path):
+        os.makedirs(target_path)
+    file_list = os.listdir(data_path)
+    for file in file_list:
+        age = file.split('_')[0]
+        age_path = target_path + '/' + str(age)
+        if not os.path.exists(age_path):
+            os.makedirs(age_path)
+        src = data_path + '/' + str(file)
+        dest = age_path + '/' + str(file)
+        shutil.move(src, dest)
 
+
+if __name__ == '__main__':
     # filepath = './female_celebrities.txt'
     # kws = get_keyword_list(filepath)
     # for kw in kws:
     #     print(kw)
 
     # search_img('이영호', 'male', LIMIT)
+
+    # make_utk_dir()
+    LIMIT = 150
+
     # Female Celebrity Crawling
     filepath = '../female_celebrities.txt'
     kws = get_keyword_list(filepath)
@@ -80,4 +102,3 @@ if __name__ == '__main__':
     kws = get_keyword_list(filepath)
     for kw in kws:
         search_img(kw, 'male', LIMIT)
-
