@@ -123,3 +123,4 @@ if __name__ == '__main__':
     for i in dir_list:
         p = path + '/' + i
         crop_celebrities_face_and_save(p)
+

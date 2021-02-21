@@ -39,15 +39,17 @@ def get_dataset_mean_std(data_path):
 
     # mean=[0.5893, 0.4750, 0.4330], std=[0.2573, 0.2273, 0.2134] for celebrities_face
     # mean=[0.5961, 0.4563, 0.3906], std=[0.2184, 0.1944, 0.1852] for utk_face
+    # mean=[0.6361, 0.4875, 0.4189], std=[0.2105, 0.1893, 0.1820] for face_age
     return mean, std
 
 
-def get_dataset(data_path, mean, std):
+def get_dataset(data_path, mean, std, target_transform=None):
     """
     make a dataset normalized by mean and std from data path
     :param data_path:a data path which is a directory that separated by classes
     :param mean: mean value to normalize
     :param std: std value to normalize
+    :param target_transform: use to ImageFolder's target_transform, default None
     :return: transformed DataSet
     """
     # can add more data augmentation
@@ -58,12 +60,12 @@ def get_dataset(data_path, mean, std):
         transforms.RandomHorizontalFlip()
     ])
 
-    return datasets.ImageFolder(root=data_path, transform=preprocess)
+    return datasets.ImageFolder(root=data_path, transform=preprocess, target_transform=target_transform)
 
 
 def check_dataset(dataset):
     """
-    show images of one batch in dataset
+    show images of one batch(16) in dataset
     :param dataset: DataSet that you want to check
     """
     loader = torch.utils.data.DataLoader(dataset, batch_size=16)
@@ -131,14 +133,15 @@ def train_test_set_split(dataset, dataset_name, test_size=0.1):
     return train_set, test_set, train_labels
 
 
-def train_valid_sampler_split(train_set, train_labels, valid_size=0.1, stratify=True):
+def train_valid_loader_split(train_set, train_labels, batch_size=32, valid_size=0.1, stratify=True):
     """
     split train set to train sampler and valid sampler using SubsetRandomSampler
     :param train_set: base train set
     :param train_labels: base train label(can be used as stratify
+    :param batch_size: loader's batch size
     :param valid_size: valid size rate you want to split from train set, default 0.1
     :param stratify: stratify split option, default True
-    :return: train sampler, valid sampler
+    :return: train loader, valid loader
     """
     indices = np.arange(len(train_set))
     if stratify:
@@ -147,20 +150,65 @@ def train_valid_sampler_split(train_set, train_labels, valid_size=0.1, stratify=
         )
     else:
         train_indices, valid_indices, _, _ = train_test_split(
-            indices, train_labels, test_size=test_size
+            indices, train_labels, test_size=valid_size
         )
     train_sampler = SubsetRandomSampler(indices=train_indices)
     valid_sampler = SubsetRandomSampler(indices=valid_indices)
-    return train_sampler, valid_sampler
+    train_loader = torch.utils.data.DataLoader(
+        train_set, batch_size, sampler=train_sampler, num_workers=2
+    )
+    valid_loader = torch.utils.data.DataLoader(
+        train_set, batch_size, sampler=valid_sampler, num_workers=2
+    )
+    return train_loader, valid_loader
+
+
+def calculate_class_weight(dataset):
+    """
+    calculate weight for each class
+    used for calculating weighted loss
+    :param dataset: full dataset you want to calculate weight for each class
+    :return: tensor of weight for each class
+    """
+    weight_list = []
+    for i in range(len(dataset.classes)):
+        n = dataset.targets.count(i)
+        weight = torch.tensor([len(dataset) / n])
+        weight_list.append(weight)
+    weight_tensor = torch.cat(weight_list, dim=0)
+    max_val = torch.max(weight_tensor, dim=0).values.item()
+    return torch.div(weight_tensor, max_val)
+
+
+def face_target(label):
+    """
+    this function is for Facial Age dataset in Kaggle uploaded by Fazle Rabbi
+    downloaded from->https://www.kaggle.com/frabbisw/facial-age
+    this function transforms target label value to real age value so can be used in regression model
+    you must check Facial Age dataset's targets and classes first and modify this function to fit in your dataset
+    I modified my Facial Age dataset so age 100 class is included in age 99
+    :param label: parameter for callable target_transform function
+    :return: transformed target value
+    """
+    classes = []
+    for i in range(1, 97):
+        classes.append(torch.tensor([i], dtype=torch.float32))
+    classes.append(torch.tensor([99], dtype=torch.float32))
+    return classes[label]
 
 
 if __name__ == '__main__':
     dataset = get_dataset(
         './celebrities_face',
         [0.5893, 0.4750, 0.4330],
-        [0.2573, 0.2273, 0.2134]
+        [0.2573, 0.2273, 0.2134],
     )
     check_dataset(dataset)
-    train_set, test_set, _ = train_test_set_split(dataset, 'celebrities_face', test_size=0.1)
+    train_set, test_set, train_labels = train_test_set_split(dataset, 'celebrities_face', test_size=0.1)
+    train_loader, valid_loader = train_valid_loader_split(train_set, train_labels, batch_size=32, valid_size=0.1)
+    daitater = iter(train_loader)
+    X, y = daitater.next()
+    print(y.shape)
     print(len(train_set))
     print(len(test_set))
+

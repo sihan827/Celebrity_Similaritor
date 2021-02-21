@@ -75,8 +75,10 @@ def search_img(keyword, limit):
 
 def make_utk_dir():
     """
-    this function is for UTKFace data images (use cropped images)
-    https://susanqq.github.io/UTKFace/
+    this function is for UTKFace data images ( cropped images used)
+    downloaded from->https://susanqq.github.io/UTKFace/
+    but I trained age prediction model by Facial Age in Kaggle uploaded by Fazle Rabbi
+    downloaded from->https://www.kaggle.com/frabbisw/facial-age
     separate UTKFace to ages class directory
     """
     data_path = './UTKFace'

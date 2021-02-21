@@ -71,7 +71,25 @@ def load_model(model_name):
 
 
 if __name__ == '__main__':
-    model = get_inception_v3(num_classes=200)
-    print(model)
-    save_model(model, 'test')
+    eval_model = load_model('face_age_deploy1')
+    eval_model.eval().to('cuda')
+    from PIL import Image
+    from torchvision import transforms
+
+    DATA_MEAN = [0.6361, 0.4875, 0.4189]
+    DATA_STD = [0.2105, 0.1893, 0.1820]
+
+    preprocess = transforms.Compose([
+        transforms.Resize((299, 299)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=DATA_MEAN, std=DATA_STD),
+    ])
+
+    input_image = Image.open('./father_0.jpg')
+    input_tensor = preprocess(input_image)
+    input_batch = input_tensor.unsqueeze(0).to('cuda')
+    with torch.no_grad():
+        output = eval_model(input_batch)
+    print(output.item())
+
 
